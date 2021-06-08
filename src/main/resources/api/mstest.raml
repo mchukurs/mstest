@@ -1,0 +1,89 @@
+#%RAML 1.0
+title: mstest
+baseUri: http://localhost:8099
+description: testing ms with sf
+mediaType:
+  - application/json
+version: v1
+protocols:
+  - HTTP
+
+types:
+  accountResponse: |
+    { "$schema": "http://json-schema.org/schema",
+       "type": "object",
+       "description": "Account details",
+       "properties": {
+         "externalIdentifier": { "type": "number" },
+         "name": { "type": "string" },
+         "industry": { "type": "string" },
+         "revenue": { "type": "number" },
+         "rating": { "type": "number" },
+         "description": { "type": "string" }
+       },
+        "required": []
+    }
+
+/accounts:
+    get:
+      description: List all Accounts matching query criteria, if provided.
+                 Otherwise list all Accounts
+      queryParameters:
+        name?: string
+        externalIdentifier?: number
+        numOfAcc?: number
+      responses:
+        200:
+          body:
+            application/json:
+              type: accountResponse[]
+              example: [{name: "test1Name"},{name: "test2Name"}]
+    post:
+      description: Create a single Account, if correct data types are provided
+      queryParameters:
+        externalIdentifier: number
+        name: string
+        industry: string
+        revenue: number
+        rating: number
+        description: string
+      responses:
+        200:
+          body:
+            application/json:
+              type: string
+              example:
+                "Single Account created"
+    put:
+      description: Update dedicated account by its name 
+      queryParameters:
+        externalIdentifier?: number
+        name: string
+        industry?: string
+        revenue?: number
+        rating?: number
+        description?: string
+      responses:
+        200:
+           body:
+            application/json:
+              type: string
+              example:
+                "Account updated"
+/bulk:
+  post:
+    description: Create multiple accounts with one call
+    queryParameters:
+        externalIdentifier: number
+        name: string
+        industry: string
+        revenue: number
+        rating: number
+        description: string
+    responses:
+      200:
+        body:
+          application/json:
+            type: string
+            example:
+                "Account/Accounts created" 
