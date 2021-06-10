@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="accounts-listener-get" doc:id="2f23604e-7a8b-4ca4-84fc-ba70b49903e4" doc:description="This flow is to:&#10;-Get all Accounts&#10;-Get Accounts by unique id or name">
+		<http:listener doc:name="accounts-http-listener-get" doc:id="4d850f69-d613-4f2b-959f-ef88c769809d" path="/accounts" allowedMethods="GET" config-ref="HTTP_Listener_config"/>
+		<choice doc:name="Check if queryParams are set" doc:id="93106af7-6c17-4517-9c31-b31f477cb161" doc:description="Choice set to decide whether specific records need to be returned or the entire sf object content">
+			<when expression="#[sizeOf(attributes.queryParams) !=0]">
+				<ee:transform doc:name="Transform Message" doc:id="7142b93c-8610-455e-83a9-90b9f56cbaa8">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+						<ee:set-variable variableName="test2" ><![CDATA[%dw 2.0
+output application/json
+var abc = attributes.queryParams pluck (value,key,index) -> (key)
+---
+abcdef : abc]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="74f1202f-4490-4efa-a78a-53e3ee65455c" message="test"/>
+			</when>
+			<otherwise >
+				<flow-ref doc:name="get-all-records" doc:id="0ec2af68-a1e0-40f5-abe1-ce8ba1ab13bd" name="accounts-listener-put"/>
+			</otherwise>
+		</choice>
+	</flow>
+	<flow name="accounts-listener-post" doc:id="151abae9-5296-4f78-af62-d25a441c7e9b" >
+		<http:listener doc:name="accounts-http-listener-post" doc:id="4e580bda-3ff2-4497-92af-f9c5ccd29519" path="/accounts" config-ref="HTTP_Listener_config" allowedMethods="POST"/>
+		<ee:transform doc:name="Copy_of_Transform Message" doc:id="99aea073-bae0-4366-9245-82b331803315" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+name: "u did it 2"]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="accounts-listener-put" doc:id="ac4b65a3-95c6-44ab-a5f6-b81ff46a0502" >
+		<http:listener doc:name="accounts-http-listener-put" doc:id="08a03a18-ef4c-474c-8acf-95f9871e466e" path="/accounts" config-ref="HTTP_Listener_config" allowedMethods="PUT"/>
+		<ee:transform doc:name="Copy_of_Transform Message" doc:id="1912ea48-887b-461b-9b15-de6328d67eae" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+name: "u did it 3"]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="bulk-listener-post" doc:id="f2ed3f7d-c10c-40b1-b74b-83c9f427e395" >
+		<http:listener doc:name="bulk-http-listener-post" doc:id="7771b91e-8644-4b06-bd22-ce24c61ffeb6" path="/bulk" config-ref="HTTP_Listener_config" allowedMethods="POST"/>
+		<ee:transform doc:name="Copy_of_Transform Message" doc:id="734bffd7-8909-4f51-bc51-5bb8c44c7e98" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+name: "u did it 4"]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

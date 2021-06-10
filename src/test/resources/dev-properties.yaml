@@ -1,0 +1,70 @@
+api:
+  id:           "16883367"
+  
+tls.keystore:
+  type:         "pkcs12"  
+  path:         "cert/rest-template-stage.p12"
+  alias:        "server"
+  
+  
+logger:
+  prettyPrint:  "true"   
+
+correlation:
+  impose: "false"  
+        
+amq:
+  url: "https://mq-eu-west-2.anypoint.mulesoft.com/api/v1"
+  app:
+    ca-id: "8a2c713fd83540c48745d1c59b7b5490"
+  error-queue:
+    name: "q-dv-rtts-app-errors"
+  logs-queue:
+    name: "q-dv-rtts-app-logs"
+  egress: 
+    prop: 
+      fetch.size: "10"
+      frequency:  "100"
+      scheduling.timeout.unit: "MILLISECONDS"
+      start.delay: "0"
+      ack.timeout: "20" 
+      ack.timeout.unit: "MINUTES"  
+  aggregated:      
+    prop: 
+      fetch.size: "5"
+      frequency:  "30"
+      scheduling.timeout.unit: "SECONDS"
+      start.delay: "0"
+      ack.timeout: "20"   
+      ack.timeout.unit: "MINUTES"   
+        
+rtts:
+  exchange: "x-dv-rtts-aggregated-p2-votc-v1-0"
+  queue:     
+    client:
+      url: "https://mq-eu-west-2.anypoint.mulesoft.com/api/v1"
+    egress:      
+      name: "q-dv-rtts-p2-votc-v1-0"
+      max_local_messages: "30"
+      acknowledgement_timeout: "15"
+      acknowledgementTimeoutUnit: "MINUTES"
+      prefetchSize: "10"
+      cron: "0/1 * * * * ? *"
+    aggregated:
+      name: "q-dv-rtts-aggregated-p2-votc-v1-0"    
+      max_local_messages: "30"
+      acknowledgement_timeout: "15"
+      acknowledgementTimeoutUnit: "MINUTES"
+      prefetchSize: "1"
+      cron: "0/1 * * * * ? *"      
+  aggregator:
+    maxrecords: "1000"
+    period: "5"
+  aggregator2:
+    maxrecords: "5"
+    period: "5"
+    
+s3:
+  regionEndpoint: "EU-WEST-2"
+  bucket: "votc-qa2-bucket/Dev"
+
