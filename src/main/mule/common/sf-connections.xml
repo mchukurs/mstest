@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<salesforce:sfdc-config name="Salesforce_Config_basic_plain_text" doc:name="Salesforce Config" doc:id="142260ee-29e0-4e49-9f2f-5369cc80401c" >
+		<salesforce:basic-connection username="matiss@chukurs.com" password="TESTINGsf123" securityToken="0gmL0XsI0HtE6NYT7tbaHitTG" />
+	</salesforce:sfdc-config>
+	<sub-flow name="sf-connections-get-objects" doc:id="1d736a37-7db5-4b35-b47f-52b43c12a078" >
+		<until-successful maxRetries="5" doc:name="Until Successful" doc:id="f83e2e3c-be35-4062-9c87-3b4b8a7b97ab">
+			<salesforce:query doc:id="6da981c2-6d4a-4fe0-b185-e0ac4f9ca3db" config-ref="Salesforce_Config_basic_plain_text">
+				<salesforce:salesforce-query><![CDATA[#[vars.toRequestVar.toRequestValue]]]></salesforce:salesforce-query>
+			</salesforce:query>
+		</until-successful>
+		<logger level="INFO" doc:name="Logger" doc:id="b65ac949-6e46-4250-bcc1-38b907d91d69" message="payload"/>
+	</sub-flow>
+	<sub-flow name="sf-connections-create-objects" doc:id="1389ef7d-6716-42ab-8013-5b670148cafd" >
+		<until-successful maxRetries="5" doc:name="Until Successful" doc:id="09cd3d34-a730-4d86-89ee-50f4f8e989b9">
+			<salesforce:create doc:id="737cea74-78ec-4678-9545-ee55e8ea539e" doc:name="Create_new_account_record" config-ref="Salesforce_Config_basic_plain_text" type="Account" />
+		</until-successful>
+		<logger level="INFO" doc:name="Logger" doc:id="065ccdde-2bb8-4fe2-a670-2d2a05005590" message="payload" />
+	</sub-flow>
+</mule>
