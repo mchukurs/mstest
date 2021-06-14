@@ -1,5 +1,38 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
-  <types:catalog/>
-  <types:enrichment select="#7142b93c-8610-455e-83a9-90b9f56cbaa8"/>
+  <types:catalog>
+    <types:type name="Name" format="java">
+      <types:shape format="raml"><![CDATA[#%RAML 1.0 DataType
+type: string]]></types:shape>
+    </types:type>
+    <types:type name="externalIdentifier__c" format="java">
+      <types:shape format="raml"><![CDATA[#%RAML 1.0 DataType
+type: number]]></types:shape>
+    </types:type>
+    <types:type name="Industry" format="java">
+      <types:shape format="raml"><![CDATA[#%RAML 1.0 DataType
+type: string]]></types:shape>
+    </types:type>
+    <types:type name="AnnualRevenue" format="java">
+      <types:shape format="raml"><![CDATA[#%RAML 1.0 DataType
+type: number]]></types:shape>
+    </types:type>
+    <types:type name="Rating" format="java">
+      <types:shape format="raml"><![CDATA[#%RAML 1.0 DataType
+type: string]]></types:shape>
+    </types:type>
+    <types:type name="Description" format="java">
+      <types:shape format="raml"><![CDATA[#%RAML 1.0 DataType
+type: string]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#b9d555d7-0167-456a-aecb-f1f288fc350c">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="AnnualRevenue"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
 </types:mule>
