@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<salesforce:sfdc-config name="Salesforce_Config_basic_plain_text" doc:name="Salesforce Config" doc:id="142260ee-29e0-4e49-9f2f-5369cc80401c" >
 		<salesforce:basic-connection username="matiss@chukurs.com" password="TESTINGsf123" securityToken="0gmL0XsI0HtE6NYT7tbaHitTG" />
 	</salesforce:sfdc-config>
@@ -17,8 +18,18 @@ http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mu
 	</sub-flow>
 	<sub-flow name="sf-connections-create-objects" doc:id="1389ef7d-6716-42ab-8013-5b670148cafd" >
 		<until-successful maxRetries="5" doc:name="Until Successful" doc:id="09cd3d34-a730-4d86-89ee-50f4f8e989b9">
-			<salesforce:create doc:id="737cea74-78ec-4678-9545-ee55e8ea539e" doc:name="Create_new_account_record" config-ref="Salesforce_Config_basic_plain_text" type="Account" />
+			<salesforce:create doc:id="737cea74-78ec-4678-9545-ee55e8ea539e" doc:name="Create_new_account_record" config-ref="Salesforce_Config_basic_plain_text" type="Account" >
+				<reconnect />
+			</salesforce:create>
 		</until-successful>
 		<logger level="INFO" doc:name="Logger" doc:id="065ccdde-2bb8-4fe2-a670-2d2a05005590" message="payload" />
+	</sub-flow>
+	<sub-flow name="sf-connections-update-objects" doc:id="68abba85-5723-4ed2-b3f9-c962a557873b" >
+		<until-successful maxRetries="5" doc:name="Until Successful" doc:id="3b91b1df-4a29-495e-aeaf-8eca04001c00" >
+			<salesforce:update type="Account" doc:name="Update" doc:id="093b19f5-090b-4bbe-8767-4b76873429d9" config-ref="Salesforce_Config_basic_plain_text" >
+				<reconnect />
+			</salesforce:update>
+		</until-successful>
+		<logger level="INFO" doc:name="Copy_of_Logger" doc:id="b80240a0-2fd1-4509-8407-777bd5a9257c" message="payload" />
 	</sub-flow>
 </mule>

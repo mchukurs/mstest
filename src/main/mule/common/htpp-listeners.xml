@@ -8,6 +8,23 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
 	<flow name="accounts-listener-get" doc:id="2f23604e-7a8b-4ca4-84fc-ba70b49903e4" doc:description="This flow is to:&#10;-Get all Accounts&#10;-Get Accounts by unique id or name">
 		<http:listener doc:name="accounts-http-listener-get" doc:id="4d850f69-d613-4f2b-959f-ef88c769809d" path="/accounts" allowedMethods="GET" config-ref="HTTP_Listener_config"/>
+		<ee:transform doc:name="store-params" doc:id="95749dc7-a8b5-47cc-8424-9ffc04beeda3" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="storeParams" ><![CDATA[%dw 2.0
+output application/json
+---
+
+if (sizeOf (attributes.queryParams) > 0) {
+	
+	originalParams: attributes.queryParams
+}
+else
+originalParams: null
+]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
 		<ee:transform doc:name="transform-accounts-query" doc:id="7142b93c-8610-455e-83a9-90b9f56cbaa8">
 			<ee:message>
 			</ee:message>
@@ -17,29 +34,55 @@ http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mu
 		</ee:transform>
 		<flow-ref doc:name="get-records" doc:id="0ec2af68-a1e0-40f5-abe1-ce8ba1ab13bd" name="sf-connections-get-objects" />
 		<remove-variable doc:name="Remove ToRequestVar" doc:id="7cec3200-e328-4dc0-9760-7524f079e748" variableName="toRequestVar"/>
+		<remove-variable doc:name="Remove storeParams" doc:id="728f58ed-cdb5-4c2b-84cd-8942a4312669" variableName="storeParams"/>
 		<logger level="INFO" doc:name="Logger" doc:id="74f1202f-4490-4efa-a78a-53e3ee65455c" message="test" />
 	</flow>
 	<flow name="accounts-listener-post" doc:id="151abae9-5296-4f78-af62-d25a441c7e9b" >
 		<http:listener doc:name="accounts-http-listener-post" doc:id="4e580bda-3ff2-4497-92af-f9c5ccd29519" path="/accounts" config-ref="HTTP_Listener_config" allowedMethods="POST"/>
-		<ee:transform doc:name="transform-accounts-create" doc:id="174acc22-0367-4c12-98bd-74e8af6a723e" >
-			<ee:message />
-			<ee:variables >
-				<ee:set-variable resource="dw/var-get-transform.dwl" variableName="toRequestVar" />
-			</ee:variables>
-		</ee:transform>
 		<flow-ref doc:name="create-records" doc:id="4bf3f184-7be2-4e94-bab5-ba8bdb1c6401" name="sf-connections-create-objects" />
-		<remove-variable doc:name="Remove ToRequestVar" doc:id="29b78c92-b905-4267-a621-4a7c5a95f105" variableName="toRequestVar" />
 	</flow>
 	<flow name="accounts-listener-put" doc:id="ac4b65a3-95c6-44ab-a5f6-b81ff46a0502" >
 		<http:listener doc:name="accounts-http-listener-put" doc:id="08a03a18-ef4c-474c-8acf-95f9871e466e" path="/accounts" config-ref="HTTP_Listener_config" allowedMethods="PUT"/>
-		<ee:transform doc:name="Copy_of_Transform Message" doc:id="1912ea48-887b-461b-9b15-de6328d67eae" >
+		<ee:transform doc:name="Transform Message" doc:id="fb681c79-4274-42b8-9e8e-ae8303510db4" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="originalPayload" ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="02275ffe-e944-402c-bbae-3cfccb40e3b1">
+			<ee:message>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="toRequestVar" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+toRequestValue : "SELECT Id,externalIdentifier__c,Name,AnnualRevenue,Rating,Description FROM Account WHERE externalIdentifier__c = " ++ vars.originalPayload.externalIdentifier__c as Number
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="get-records" doc:id="369a9ceb-52b7-4cdb-a0c1-494fa5e5a1ca" name="sf-connections-get-objects" />
+		<ee:transform doc:name="Transform Message" doc:id="b9d555d7-0167-456a-aecb-f1f288fc350c" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ---
-name: "u did it 3"]]></ee:set-payload>
+[{
+	Id: payload[0].Id,
+	Name: vars.originalPayload.name,
+	Industry: vars.originalPayload.industry,
+	AnnualRevenue: vars.originalPayload.AnnualRevenue,
+	externalIdentifier__c: vars.originalPayload.externalIdentifier__c,
+	Rating: vars.originalPayload.rating,
+	Description: vars.originalPayload.Description
+}]]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<salesforce:update type="Account" doc:name="Update" doc:id="ddea3c4f-7768-47bb-8c1f-6dacc549e238" config-ref="Salesforce_Config_basic_plain_text"/>
+		<flow-ref doc:name="sf-connections-update-objects" doc:id="4165c7ef-c61e-49bd-9614-f13e9388634a" name="sf-connections-update-objects"/>
+		<remove-variable doc:name="Copy_of_Remove ToRequestVar" doc:id="57fb2488-dcd0-4230-9e32-8dd924d824eb" variableName="toRequestVar" />
 	</flow>
 </mule>
